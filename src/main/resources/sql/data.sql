@@ -1,0 +1,1 @@
+insert into user (uid, name, email, password, user_status, user_role, created_date_time, modified_date_time, deleted_date_time) values ('root_admin', '메인관리자', 'root@admin.com', '$2a$10$q3Z6X060eWEFGpFoYnfme.qUNsRwjwVS7/lZyQijLyePSktWFKAMa', 'DEACTIVATED', 'ADMIN', now(), now(), null);
