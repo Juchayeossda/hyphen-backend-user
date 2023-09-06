@@ -25,6 +25,7 @@ spring:
             client-id: 965628037149-ee3ta8tuo6hs8vflas6nqpnqosqjsml2.apps.googleusercontent.com
             client-secret: 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
             redirect-uri: http://localhost:8080/api/auth/oauth2/code/google
+            client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope: profile, email
             client-name: Google
@@ -32,6 +33,7 @@ spring:
             client-id: UI7mivmVujEvYkaRGIPH
             client-secret: UFe3LVpRkR
             redirect-uri: http://localhost:8080/api/auth/oauth2/code/naver
+            client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope: name, email, profile_image
             client-name: Naver
@@ -39,7 +41,7 @@ spring:
             client-id: 0d624716f3d8101363ece56d98954baf
             client-secret: rJC7J2IOWRDlJkLO6nLwCTD0xHRemgWH
             redirect-uri: http://localhost:8080/api/auth/oauth2/code/kakao
-            client-authentication-method: POST
+            client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope: profile_nickname, profile_image
             client-name: Kakao
@@ -68,27 +70,6 @@ application:
       expiration: 3600000 # 1 hour
       refreshExpiration: 1209600000 # 2 week
 
-mail:
-  smtp:
-    auth: true
-    starttls:
-      required: true
-      enable: true
-    socketFactory:
-      class: javax.net.ssl.SSLSocketFactory
-      fallback: false
-      port: 465
-    port: 465
-
-AdminMail:
-  name: Hyphen
-  id: g88080997@gmail.com
-  password:
-
-file:
-  image:
-    path: /Users/kujahyun/Documents/GitHub/hyphen-backend-user/src/main/java/com/get/hyphenbackenduser/domain/user/profileImage
-
 springdoc:
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
@@ -104,3 +85,8 @@ springdoc:
 #  paths-to-match:
 #    - /**
   model-and-view-allowed: true
+
+webClient:
+  servers:
+    imageServer:
+      path: http://101.101.217.155:8083

@@ -18,8 +18,8 @@ import java.util.List;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "Hyphen API Doc",
-                description = "This is Hyphen rest API document.",
+                title = "Hyphen User API Doc",
+                description = "This is Hyphen user API document.",
                 version = "v1.0.0",
 //                license = @License(
 //                        name = "Apache License Version 2.0",

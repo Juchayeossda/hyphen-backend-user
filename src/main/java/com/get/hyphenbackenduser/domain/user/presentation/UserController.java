@@ -1,10 +1,7 @@
 package com.get.hyphenbackenduser.domain.user.presentation;
 
 import com.get.hyphenbackenduser.domain.user.presentation.dto.request.RenameRequest;
-import com.get.hyphenbackenduser.domain.user.presentation.dto.response.MyInfoResponse;
-import com.get.hyphenbackenduser.domain.user.presentation.dto.response.ReimageResponse;
-import com.get.hyphenbackenduser.domain.user.presentation.dto.response.RenamedResponse;
-import com.get.hyphenbackenduser.domain.user.presentation.dto.response.WithdrawalUserResponse;
+import com.get.hyphenbackenduser.domain.user.presentation.dto.response.*;
 import com.get.hyphenbackenduser.domain.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,11 +40,10 @@ public class UserController {
             @ApiResponse(
                     responseCode = "200",
                     description = "<b>[Success]</b> 스캔 성공",
-                    headers = @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "File name"),
                     content = @Content(
-                            mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE,
-                            schema = @Schema(implementation = Resource.class),
-                            examples = @ExampleObject(value = "resource")
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = GetProfileImageResponse.class),
+                            examples = @ExampleObject(value = "{\"imageUrl\":\"http://101.101.217.155:8083/api/siss/extract/image/test.png\"}")
                     )
             ),
             @ApiResponse(responseCode = "401", description = "<b>[Unauthorized]</b> 인가 기능이 확인되지 않은 접근", content = @Content),
@@ -55,8 +51,8 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "<b>[InternalError]</b> 서버 오류 발생", content = @Content)
     })
     @GetMapping("/image")
-    public ResponseEntity<Resource> getProfileImage(HttpServletRequest httpServletRequest) throws IOException {
-        return userService.getImage(httpServletRequest);
+    public ResponseEntity<GetProfileImageResponse> getProfileImage() throws IOException {
+        return ResponseEntity.ok(userService.getImage());
     }
 
     // GET("/info")
@@ -119,7 +115,7 @@ public class UserController {
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ReimageResponse.class),
-                            examples = @ExampleObject(value = "{\"uid\":\"hyun234\",\"imageId\":1,\"imageName\":\"hyphen-logo.png\",\"imagePath\":\"/Users/kujahyun/Documents/GitHub/hyphen-backend-user/src/main/java/com/get/hyphenbackenduser/domain/user/profileImage/hyun234/hyphen-logo.png\"}")
+                            examples = @ExampleObject(value = "{\"status\":Status.SUCCESS}")
                     )
             ),
             @ApiResponse(responseCode = "401", description = "<b>[Unauthorized]</b> 인가 기능이 확인되지 않은 접근", content = @Content),
@@ -127,16 +123,16 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "<b>[InternalError]</b> 서버 오류 발생", content = @Content)
     })
     @Parameter(
-            name = "imageFile",
+            name = "image",
             description = "변경할 프로필 이미지 파일",
             content = @Content(
                     mediaType = MediaType.IMAGE_PNG_VALUE,
                     schema = @Schema(implementation = MultipartFile.class)
-            )
+                    )
     )
     @PatchMapping("/image")
-    public ResponseEntity<ReimageResponse> reimage(@RequestParam("imageFile") MultipartFile imageFile) {
-        return ResponseEntity.ok(userService.reimage(imageFile)); // TODO: SISS를 사용하는 코드로 리팩토링
+    public ResponseEntity<ReimageResponse> reimage(@RequestParam("image") MultipartFile image) {
+        return ResponseEntity.ok(userService.reimage(image));
     }
 
     // TODO: Delete

@@ -61,7 +61,7 @@ public class User extends BaseTimeEntity {
     @Schema(description = "OAuth 아이디", nullable = true)
     private String socialId;
 
-    @Schema(description = "프로필 이미지 아이디", nullable = true)
+    @Schema(description = "프로필 이미지 경로", nullable = true)
     @Column(unique = true)
-    private Long imageId;
+    private String imagePath;
 }

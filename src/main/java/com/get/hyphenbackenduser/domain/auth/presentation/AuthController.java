@@ -1,14 +1,9 @@
 package com.get.hyphenbackenduser.domain.auth.presentation;
 
 import com.get.hyphenbackenduser.domain.auth.presentation.dto.request.LoginRequest;
-import com.get.hyphenbackenduser.domain.auth.presentation.dto.request.MailRequest;
-import com.get.hyphenbackenduser.domain.auth.presentation.dto.request.RefreshTokenRequest;
 import com.get.hyphenbackenduser.domain.auth.presentation.dto.request.RegisterRequest;
 import com.get.hyphenbackenduser.domain.auth.presentation.dto.response.LoginTokenResponse;
-import com.get.hyphenbackenduser.domain.auth.presentation.dto.response.MailResponse;
-import com.get.hyphenbackenduser.domain.auth.presentation.dto.response.RefreshTokenResponse;
 import com.get.hyphenbackenduser.domain.auth.service.AuthService;
-import com.get.hyphenbackenduser.domain.auth.service.MailService;
 import com.get.hyphenbackenduser.domain.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final MailService mailService;
 
     // POST("/signin")
     @Operation(method = "POST", summary = "로그인 API", description = "회원 인증 API")
@@ -113,34 +107,5 @@ public class AuthController {
     @PostMapping("/signout")
     public ResponseEntity<User> logout() {
         return ResponseEntity.ok(authService.logout());
-    }
-
-    // POST("/email")
-    @Operation(method = "POST", summary = "이메일 인증 API", description = "회원 이메일 인증 API")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "<b>[Success]</b> 스캔 성공",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = MailResponse.class),
-                            examples = @ExampleObject(value = "{\"sendEmail\":\"sender@email.com\",\"recvEmail\":\"hyun@email.com\",\"authNumber\":\"9EASRdn6\"}")
-                    )
-            ),
-            @ApiResponse(responseCode = "401", description = "<b>[Unauthorized]</b> 인가 기능이 확인되지 않은 접근", content = @Content),
-            @ApiResponse(responseCode = "404", description = "<b>[NotFound]</b> 존재하지 않는 리소스 접근", content = @Content),
-            @ApiResponse(responseCode = "500", description = "<b>[InternalError]</b> 서버 오류 발생", content = @Content)
-    })
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "이메일",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = MailRequest.class),
-                    examples = @ExampleObject(value = "{\"email\":\"hyun@email.com\"}")
-            )
-    )
-    @PostMapping("/email")
-    public ResponseEntity<MailResponse> emailAuth(@Validated @RequestBody MailRequest mailRequest) throws Exception {
-        return ResponseEntity.ok(mailService.sendMessage(mailRequest.getEmail()));
     }
 }

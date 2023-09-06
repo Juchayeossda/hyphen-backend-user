@@ -1,6 +1,5 @@
 package com.get.hyphenbackenduser.global.lib.oauth2.handler;
 
-import com.get.hyphenbackenduser.domain.user.domain.entity.User;
 import com.get.hyphenbackenduser.domain.user.domain.repository.UserRepository;
 import com.get.hyphenbackenduser.domain.user.enums.UserRole;
 import com.get.hyphenbackenduser.global.lib.jwt.JwtProvider;

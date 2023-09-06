@@ -14,5 +14,4 @@ public class HyphenBackendUserApplication {
     public static void main(String[] args) {
         SpringApplication.run(HyphenBackendUserApplication.class, args);
     }
-
 }

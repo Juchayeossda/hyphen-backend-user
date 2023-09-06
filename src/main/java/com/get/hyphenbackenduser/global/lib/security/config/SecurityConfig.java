@@ -9,6 +9,7 @@ import com.get.hyphenbackenduser.global.lib.security.handler.JwtAuthenticationEn
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -35,9 +36,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(handlingConfigures -> handlingConfigures.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/v3/**", "/swagger-ui/**").permitAll()
-                        .requestMatchers("/api/auth/jwt/validate", "/api/auth/signout").authenticated()
-                        .requestMatchers("/", "/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v3/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/jwt/validate", "/api/auth/signout").authenticated()
+                        .requestMatchers("/", "/api/auth/**", "/api/user/image").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/user/image").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest()
                         .authenticated()
