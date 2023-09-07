@@ -7,6 +7,7 @@ import com.get.hyphenbackenduser.domain.user.domain.repository.UserRepository;
 import com.get.hyphenbackenduser.domain.user.enums.UserStatus;
 import com.get.hyphenbackenduser.domain.user.exception.AlreadyNameExistsException;
 import com.get.hyphenbackenduser.domain.user.exception.UserDeactivatedException;
+import com.get.hyphenbackenduser.domain.user.presentation.dto.request.UpdatePasswordRequest;
 import com.get.hyphenbackenduser.domain.user.presentation.dto.response.*;
 import com.get.hyphenbackenduser.domain.user.service.UserService;
 import com.get.hyphenbackenduser.global.enums.Status;
@@ -16,6 +17,7 @@ import com.get.hyphenbackenduser.global.util.WebClientUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final SecurityService securityService;
     private final UserRepository userRepository;
     private final WebClientUtil webClientUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @Value(value = "${webClient.servers.imageServer.path}")
     private String imageServerPath;
@@ -87,16 +90,34 @@ public class UserServiceImpl implements UserService {
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("image", image.getResource());
         ImageUploadResponse imageUploadResponse = webClientUtil.imageUpload(builder, imageServerPath + "/api/siss/upload/image");
-        user.setImagePath(imageUploadResponse.getIdent());
-        if (userRepository.save(user) != null) {
+        if (imageUploadResponse.getHttpStatus() == 200L) {
+            user.setImagePath(imageUploadResponse.getIdent());
+            userRepository.save(user);
             return ReimageResponse.builder()
                     .status(Status.SUCCESS)
-                    .build();
-        } else {
-            return ReimageResponse.builder()
-                    .status(Status.FAILURE)
+                    .description(imageUploadResponse.getDescription())
                     .build();
         }
+        return ReimageResponse.builder()
+                .status(Status.FAILURE)
+                .description(imageUploadResponse.getDescription())
+                .build();
+    }
+
+    @Transactional
+    public UpdatePasswordResponse updatePassword(UpdatePasswordRequest updatePasswordRequest) {
+        User user = securityService.getAuthUserInfo();
+        if (passwordEncoder.matches(updatePasswordRequest.getOriginPassword(), user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
+            if (userRepository.save(user) != null) {
+                return UpdatePasswordResponse.builder()
+                        .status(Status.SUCCESS)
+                        .build();
+            }
+        }
+        return UpdatePasswordResponse.builder()
+                .status(Status.FAILURE)
+                .build();
     }
 
     @Transactional
@@ -112,6 +133,23 @@ public class UserServiceImpl implements UserService {
                 .uid(user.getUid())
                 .userStatus(user.getUserStatus())
                 .userRole(user.getUserRole())
+                .build();
+    }
+
+    @Transactional
+    public DeleteProfileImageResponse deleteImage() {
+        User user = securityService.getAuthUserInfo();
+        if (user.getUserStatus().equals(UserStatus.BANNED)) {
+            throw UserDeactivatedException.EXCEPTION;
+        }
+        user.setImagePath(null);
+        if (userRepository.save(user) != null) {
+            return DeleteProfileImageResponse.builder()
+                    .status(Status.SUCCESS)
+                    .build();
+        }
+        return DeleteProfileImageResponse.builder()
+                .status(Status.FAILURE)
                 .build();
     }
 }

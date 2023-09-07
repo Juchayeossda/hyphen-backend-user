@@ -1,6 +1,7 @@
 package com.get.hyphenbackenduser.domain.user.presentation;
 
 import com.get.hyphenbackenduser.domain.user.presentation.dto.request.RenameRequest;
+import com.get.hyphenbackenduser.domain.user.presentation.dto.request.UpdatePasswordRequest;
 import com.get.hyphenbackenduser.domain.user.presentation.dto.response.*;
 import com.get.hyphenbackenduser.domain.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -115,12 +116,36 @@ public class UserController {
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ReimageResponse.class),
-                            examples = @ExampleObject(value = "{\"status\":Status.SUCCESS}")
+                            examples = @ExampleObject(value = "{\"status\":\"SUCCESS\",\"description\":\"success to image upload\"}")
                     )
             ),
-            @ApiResponse(responseCode = "401", description = "<b>[Unauthorized]</b> 인가 기능이 확인되지 않은 접근", content = @Content),
-            @ApiResponse(responseCode = "404", description = "<b>[NotFound]</b> 존재하지 않는 리소스 접근", content = @Content),
-            @ApiResponse(responseCode = "500", description = "<b>[InternalError]</b> 서버 오류 발생", content = @Content)
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "<b>[BadReqeust]</b> 잘못된 요청",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ReimageResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":\"SUCCESS\",\"description\":\"image is not in a recognized format\"}")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "<b>[NotFound]</b> 존재하지 않는 리소스 접근",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ReimageResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":\"FAILURE\",\"description\":\"can't found file in from\"}")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "<b>[InternalError]</b> 서버 오류 발생",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ReimageResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":\"FAILURE\",\"description\":\"can't create image / no open file from backend\"}")
+                    )
+            )
     })
     @Parameter(
             name = "image",
@@ -133,6 +158,35 @@ public class UserController {
     @PatchMapping("/image")
     public ResponseEntity<ReimageResponse> reimage(@RequestParam("image") MultipartFile image) {
         return ResponseEntity.ok(userService.reimage(image));
+    }
+
+    // PATCH("/password")
+    @Operation(method = "PATCH", summary = "패스워드 수정 API", description = "내 패스워드 수정 API")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "<b>[Success]</b> 스캔 성공",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UpdatePasswordResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":\"SUCCESS\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "<b>[Unauthorized]</b> 인가 기능이 확인되지 않은 접근", content = @Content),
+            @ApiResponse(responseCode = "404", description = "<b>[NotFound]</b> 존재하지 않는 리소스 접근", content = @Content),
+            @ApiResponse(responseCode = "500", description = "<b>[InternalError]</b> 서버 오류 발생", content = @Content)
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "패스워드 변경 정보",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = UpdatePasswordRequest.class),
+                    examples = @ExampleObject(value = "{\"originPassword\":\"originpassword\",\"newPassword\":\"newpassword\"}")
+            )
+    )
+    @PatchMapping("/password")
+    public ResponseEntity<UpdatePasswordResponse> updatePassword(@Validated @RequestBody UpdatePasswordRequest updatePasswordRequest) {
+        return ResponseEntity.ok(userService.updatePassword(updatePasswordRequest));
     }
 
     // TODO: Delete
@@ -155,5 +209,26 @@ public class UserController {
     @DeleteMapping("/drop")
     public ResponseEntity<WithdrawalUserResponse> withdrawalUser() {
         return ResponseEntity.ok(userService.withdrawal());
+    }
+
+    // DELETE("image")
+    @Operation(method = "DELETE", summary = "프로필 이미지 삭제 API", description = "마이 프로필 이미지 삭제 API")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "<b>[Success]</b> 스캔 성공",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = DeleteProfileImageResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":\"SUCCESS\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "<b>[Unauthorized]</b> 인가 기능이 확인되지 않은 접근", content = @Content),
+            @ApiResponse(responseCode = "404", description = "<b>[NotFound]</b> 존재하지 않는 리소스 접근", content = @Content),
+            @ApiResponse(responseCode = "500", description = "<b>[InternalError]</b> 서버 오류 발생", content = @Content)
+    })
+    @DeleteMapping("/image")
+    public ResponseEntity<DeleteProfileImageResponse> deleteProfileImage() {
+        return ResponseEntity.ok(userService.deleteImage());
     }
 }

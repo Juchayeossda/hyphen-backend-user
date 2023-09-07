@@ -38,8 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, "/v3/**", "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/jwt/validate", "/api/auth/signout").authenticated()
-                        .requestMatchers("/", "/api/auth/**", "/api/user/image").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/user/image").permitAll()
+                        .requestMatchers("/", "/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest()
                         .authenticated()

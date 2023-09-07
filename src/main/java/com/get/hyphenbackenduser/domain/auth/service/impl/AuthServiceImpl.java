@@ -6,12 +6,15 @@ import com.get.hyphenbackenduser.domain.auth.exception.AlreadyLogupedUserExcepti
 import com.get.hyphenbackenduser.domain.auth.presentation.dto.UserDTO;
 import com.get.hyphenbackenduser.domain.auth.presentation.dto.request.LoginRequest;
 import com.get.hyphenbackenduser.domain.auth.presentation.dto.response.LoginTokenResponse;
+import com.get.hyphenbackenduser.domain.auth.presentation.dto.response.LogoutResponse;
+import com.get.hyphenbackenduser.domain.auth.presentation.dto.response.RegisterResponse;
 import com.get.hyphenbackenduser.domain.auth.service.AuthService;
 import com.get.hyphenbackenduser.domain.user.domain.entity.User;
 import com.get.hyphenbackenduser.domain.user.domain.repository.UserRepository;
 import com.get.hyphenbackenduser.domain.user.enums.UserStatus;
 import com.get.hyphenbackenduser.domain.user.exception.UserDeactivatedException;
 import com.get.hyphenbackenduser.domain.user.mapper.UserMapper;
+import com.get.hyphenbackenduser.global.enums.Status;
 import com.get.hyphenbackenduser.global.lib.jwt.JwtProvider;
 import com.get.hyphenbackenduser.global.lib.security.service.SecurityService;
 import lombok.RequiredArgsConstructor;
@@ -47,15 +50,27 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Transactional
-    public User register(UserDTO userDTO) {
+    public RegisterResponse register(UserDTO userDTO) {
         if (userRepository.findByUid(userDTO.getUid()).orElse(null) != null) {
             throw AlreadyLogupedUserException.EXCEPTION;
         }
-        return userRepository.save(userMapper.createEntity(userDTO));
+        User user = userRepository.save(userMapper.createEntity(userDTO));
+        if (user != null) {
+            return RegisterResponse.builder()
+                    .uid(user.getUid())
+                    .userStatus(user.getUserStatus())
+                    .userRole(user.getUserRole())
+                    .status(Status.SUCCESS)
+                    .build();
+        } else {
+            return RegisterResponse.builder()
+                    .status(Status.FAILURE)
+                    .build();
+        }
     }
 
     @Transactional
-    public User logout() {
+    public LogoutResponse logout() {
         User user = securityService.getAuthUserInfo();
         if (user.getUserStatus().equals(UserStatus.DEACTIVATED)) {
             throw AlreadyLogoutedUserException.EXCEPTION;
@@ -64,6 +79,16 @@ public class AuthServiceImpl implements AuthService {
             throw UserDeactivatedException.EXCEPTION;
         }
         user.setUserStatus(UserStatus.DEACTIVATED);
-        return userRepository.save(user);
+        Status status;
+        if (userRepository.save(user) != null) {
+            status = Status.SUCCESS;
+        } else {
+            status = Status.FAILURE;
+        }
+        return LogoutResponse.builder()
+                .uid(user.getUid())
+                .userStatus(user.getUserStatus())
+                .status(status)
+                .build();
     }
 }

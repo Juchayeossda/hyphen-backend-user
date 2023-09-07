@@ -3,6 +3,8 @@ package com.get.hyphenbackenduser.domain.auth.presentation;
 import com.get.hyphenbackenduser.domain.auth.presentation.dto.request.LoginRequest;
 import com.get.hyphenbackenduser.domain.auth.presentation.dto.request.RegisterRequest;
 import com.get.hyphenbackenduser.domain.auth.presentation.dto.response.LoginTokenResponse;
+import com.get.hyphenbackenduser.domain.auth.presentation.dto.response.LogoutResponse;
+import com.get.hyphenbackenduser.domain.auth.presentation.dto.response.RegisterResponse;
 import com.get.hyphenbackenduser.domain.auth.service.AuthService;
 import com.get.hyphenbackenduser.domain.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -67,8 +70,8 @@ public class AuthController {
                     description = "<b>[Success]</b> 스캔 성공",
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = User.class),
-                            examples = @ExampleObject(value = "{\"id\":1,\"uid\":\"hyun234\",\"name\":\"Hyun\",\"email\":\"hyun@email.com\",\"userStatus\":\"DEACTIVATED\",\"userRole\":\"MEMBER\",\"socialType\":null,\"socialId\":null,\"imageId\":null,\"createdDateTime\":\"2023-08-22 17:20:49\",\"modifiedDateTime\":\"2023-08-22 17:24:26\",\"deletedDateTime\":null}")
+                            schema = @Schema(implementation = RegisterResponse.class),
+                            examples = @ExampleObject(value = "{\"uid\":\"hyun234\",\"userStatus\":\"DEACTIVATED\",\"userRole\":\"MEMBER\",\"status\":\"SUCCESS\"}")
                     )
             ),
             @ApiResponse(responseCode = "401", description = "<b>[Unauthorized]</b> 인가 기능이 확인되지 않은 접근", content = @Content),
@@ -84,7 +87,7 @@ public class AuthController {
             )
     )
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@Validated @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<RegisterResponse> register(@Validated @RequestBody RegisterRequest registerRequest) {
         return ResponseEntity.ok(authService.register(registerRequest.toUserDTO()));
     }
 
@@ -97,15 +100,39 @@ public class AuthController {
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = User.class),
-                            examples = @ExampleObject(value = "{\"id\":1,\"uid\":\"hyun234\",\"name\":\"Hyun\",\"email\":\"hyun@email.com\",\"userStatus\":\"DEACTIVATED\",\"userRole\":\"MEMBER\",\"socialType\":null,\"socialId\":null,\"imageId\":null,\"createdDateTime\":\"2023-08-22 17:20:49\",\"modifiedDateTime\":\"2023-08-22 17:24:26\",\"deletedDateTime\":null}")
+                            examples = @ExampleObject(value = "{\"uid\":\"hyun234\",\"userStatus\":\"DEACTIVATED\",\"status\":\"SUCCESS\"}")
                     )
             ),
-            @ApiResponse(responseCode = "401", description = "<b>[Unauthorized]</b> 인가 기능이 확인되지 않은 접근", content = @Content),
-            @ApiResponse(responseCode = "404", description = "<b>[NotFound]</b> 존재하지 않는 리소스 접근", content = @Content),
-            @ApiResponse(responseCode = "500", description = "<b>[InternalError]</b> 서버 오류 발생", content = @Content)
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "<b>[Unauthorized]</b> 인가 기능이 확인되지 않은 접근",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = User.class),
+                            examples = @ExampleObject(value = "{\"status\":\"FAILURE\"}")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "<b>[NotFound]</b> 존재하지 않는 리소스 접근",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = User.class),
+                            examples = @ExampleObject(value = "{\"status\":\"FAILURE\"}")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "<b>[InternalError]</b> 서버 오류 발생",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = User.class),
+                            examples = @ExampleObject(value = "{\"status\":\"FAILURE\"}")
+                    )
+            )
     })
     @PostMapping("/signout")
-    public ResponseEntity<User> logout() {
+    public ResponseEntity<LogoutResponse> logout() {
         return ResponseEntity.ok(authService.logout());
     }
 }

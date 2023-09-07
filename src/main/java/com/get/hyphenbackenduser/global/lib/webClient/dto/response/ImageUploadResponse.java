@@ -10,5 +10,6 @@ import lombok.*;
 public class ImageUploadResponse {
 
     private String ident;
-    private String status;
+    private Long httpStatus;
+    private String description;
 }
