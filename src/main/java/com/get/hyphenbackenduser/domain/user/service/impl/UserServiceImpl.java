@@ -15,7 +15,6 @@ import com.get.hyphenbackenduser.global.lib.security.service.SecurityService;
 import com.get.hyphenbackenduser.global.lib.webClient.dto.response.ImageUploadResponse;
 import com.get.hyphenbackenduser.global.util.WebClientUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,16 +32,13 @@ public class UserServiceImpl implements UserService {
     private final WebClientUtil webClientUtil;
     private final PasswordEncoder passwordEncoder;
 
-    @Value(value = "${webClient.servers.imageServer.path}")
-    private String imageServerPath;
-
     public GetProfileImageResponse getImage() {
         User user = securityService.getAuthUserInfo();
         if (user.getImagePath() == null) {
             return GetProfileImageResponse.builder().build();
         }
         return GetProfileImageResponse.builder()
-                .imageUrl(imageServerPath + "/api/siss/extract/image/" + user.getImagePath())
+                .imageUrl(webClientUtil.getImageServerPath() + "/api/siss/storages/images/" + user.getImagePath())
                 .build();
     }
 
@@ -56,6 +52,7 @@ public class UserServiceImpl implements UserService {
                 .userStatus(user.getUserStatus())
                 .socialType(user.getSocialType())
                 .socialId(user.getSocialId())
+                .imagePath(user.getImagePath())
                 .build();
     }
 
@@ -88,19 +85,19 @@ public class UserServiceImpl implements UserService {
             throw ImageNullException.EXCEPTION;
         }
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("image", image.getResource());
-        ImageUploadResponse imageUploadResponse = webClientUtil.imageUpload(builder, imageServerPath + "/api/siss/upload/image");
-        if (imageUploadResponse.getHttpStatus() == 200L) {
-            user.setImagePath(imageUploadResponse.getIdent());
+        builder.part("multipart-file-image", image.getResource());
+        ImageUploadResponse imageUploadResponse = webClientUtil.imageUpload(builder);
+        if (imageUploadResponse.getCode() == 201) {
+            user.setImagePath(imageUploadResponse.getData().getId());
             userRepository.save(user);
             return ReimageResponse.builder()
                     .status(Status.SUCCESS)
-                    .description(imageUploadResponse.getDescription())
+                    .description(imageUploadResponse.getMessage() + ", id: " + imageUploadResponse.getData().getId())
                     .build();
         }
         return ReimageResponse.builder()
                 .status(Status.FAILURE)
-                .description(imageUploadResponse.getDescription())
+                .description(imageUploadResponse.getMessage())
                 .build();
     }
 

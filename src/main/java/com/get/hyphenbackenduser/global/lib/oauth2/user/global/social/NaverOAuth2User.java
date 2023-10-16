@@ -12,29 +12,22 @@ public class NaverOAuth2User extends OAuth2User {
 
     @Override
     public String getId() {
-        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
-        if (response == null) {
-            return null;
-        }
-        return (String) response.get("id");
+        return (String) attributes.get("id");
     }
 
     @Override
     public String getName() {
-        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
-        if (response == null) {
-            return null;
-        }
-        return (String) response.get("nickname");
+        return (String) attributes.get("name");
+    }
+
+//    @Override
+    public String getEmail() {
+        return (String) attributes.get("email");
     }
 
     @Override
     public String getImageUrl() {
-        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
-        if (response == null) {
-            return null;
-        }
-        return (String) response.get("profile_image");
+        return (String) attributes.get("profile_image");
     }
 }
 

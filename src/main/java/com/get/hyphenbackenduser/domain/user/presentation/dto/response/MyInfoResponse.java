@@ -3,7 +3,10 @@ package com.get.hyphenbackenduser.domain.user.presentation.dto.response;
 import com.get.hyphenbackenduser.domain.user.enums.SocialType;
 import com.get.hyphenbackenduser.domain.user.enums.UserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
 import lombok.*;
+
+import java.util.List;
 
 @Schema(title = "MyInfoResponse: 내 정보 조회 응답 Dto", description = "내 정보 조회 응답 객체")
 @Getter
@@ -25,4 +28,6 @@ public class MyInfoResponse {
     private SocialType socialType;
     @Schema(description = "OAuth 아이디")
     private String socialId;
+    @Schema(description = "프로필 이미지 경로")
+    private String imagePath;
 }

@@ -22,7 +22,6 @@ import org.hibernate.annotations.DynamicInsert;
 @SuperBuilder
 public class User extends BaseTimeEntity {
 
-
     @Schema(description = "식별 아이디", nullable = false)
     @Id
     @JsonIgnore
@@ -48,20 +47,24 @@ public class User extends BaseTimeEntity {
 
     @Schema(description = "사용자 상태", nullable = false)
     @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
     private UserStatus userStatus;
 
     @Schema(description = "사용자 권한", nullable = false)
     @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
     private UserRole userRole;
 
     @Schema(description = "OAuth 타입", nullable = true)
     @Enumerated(value = EnumType.STRING)
+    @Column(nullable = true)
     private SocialType socialType;
 
     @Schema(description = "OAuth 아이디", nullable = true)
+    @Column(nullable = true)
     private String socialId;
 
     @Schema(description = "프로필 이미지 경로", nullable = true)
-    @Column(unique = true)
+    @Column(nullable = true, unique = true)
     private String imagePath;
 }

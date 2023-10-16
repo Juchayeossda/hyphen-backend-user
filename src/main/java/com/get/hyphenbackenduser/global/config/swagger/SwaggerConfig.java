@@ -50,9 +50,11 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi adminGroup() {
-        List<Tag> tags = List.of();
-        String[] pathsToMatch = {};
-        String[] pathsToExclude = {"/api/auth/**", "/api/user/**"};
+        List<Tag> tags = List.of(
+                new Tag().name("InquiryController").description("<b>[문의]</b> 문의 API")
+        );
+        String[] pathsToMatch = {"/api/inquiries/**"};
+        String[] pathsToExclude = {"/api/auth/**", "/api/user/**", "/api/mail/**", "/api/inquiry/**"};
         return GroupedOpenApi.builder()
                 .group("admin")
                 .pathsToMatch(pathsToMatch)
@@ -66,8 +68,8 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi managerGroup() {
         List<Tag> tags = List.of();
-        String[] pathsToMatch = {"/manager/**"};
-        String[] pathsToExclude = {"/api/auth/**", "/api/user/**"};
+        String[] pathsToMatch = {};
+        String[] pathsToExclude = {"/api/auth/**", "/api/user/**", "/api/inquiry/**", "/api/inquiries/**", "/api/mail/**"};
         return GroupedOpenApi.builder()
                 .group("manager")
                 .pathsToMatch(pathsToMatch)
@@ -83,10 +85,12 @@ public class SwaggerConfig {
         List<Tag> tags = List.of(
                 new Tag().name("AuthController").description("<b>[회원]</b> 인증 API"),
                 new Tag().name("ValidateController").description("<b>[회원]</b> 인가 API"),
-                new Tag().name("UserController").description("<b>[회원]</b> 관리 API")
+                new Tag().name("UserController").description("<b>[회원]</b> 관리 API"),
+                new Tag().name("MailController").description("<b>[메일]</b> 인증 API"),
+                new Tag().name("InquiryController").description("<b>[문의]</b> 문의 API")
         );
-        String[] pathsToMatch = {"/api/auth/**", "/api/user/**"};
-        String[] pathsToExclude = {};
+        String[] pathsToMatch = {"/api/auth/**", "/api/user/**", "/api/inquiry/**", "/api/mail/**"};
+        String[] pathsToExclude = {"/api/inquiries/**"};
         return GroupedOpenApi.builder()
                 .group("member")
                 .pathsToMatch(pathsToMatch)

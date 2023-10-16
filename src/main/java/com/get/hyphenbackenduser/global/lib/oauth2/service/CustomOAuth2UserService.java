@@ -21,7 +21,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
 
@@ -36,8 +36,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         SocialType socialType = getSocialType(registrationId);
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName(); // OAuth2 로그인 시 키(PK)가 되는 값
-        Map<String, Object> attributes = oAuth2User.getAttributes();
-        OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
+        Map<String, Object> attributes = socialType == SocialType.NAVER ? (Map<String, Object>) oAuth2User.getAttributes().get(userNameAttributeName) : oAuth2User.getAttributes();
+        OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, socialType == SocialType.NAVER ? "id" : userNameAttributeName, attributes);
         User createdUser = getUser(extractAttributes, socialType);
         return new CustomOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(createdUser.getUserRole().getKey())),

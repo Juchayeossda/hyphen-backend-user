@@ -10,6 +10,8 @@ import com.get.hyphenbackenduser.global.lib.oauth2.user.global.social.KakaoOAuth
 import com.get.hyphenbackenduser.global.lib.oauth2.user.global.social.NaverOAuth2User;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
 import java.util.UUID;
@@ -26,9 +28,7 @@ public class OAuthAttributes {
         this.oauth2User = oauth2User;
     }
 
-    public static OAuthAttributes of(SocialType socialType,
-                                     String userNameAttributeName, Map<String, Object> attributes) {
-
+    public static OAuthAttributes of(SocialType socialType, String userNameAttributeName, Map<String, Object> attributes) {
         if (socialType == SocialType.NAVER) {
             return ofNaver(userNameAttributeName, attributes);
         }
@@ -61,11 +61,13 @@ public class OAuthAttributes {
 
     public User toEntity(SocialType socialType, OAuth2User oauth2User) {
         return User.builder()
+                .uid(oauth2User.getId())
+                .password("0")
                 .socialType(socialType)
                 .socialId(oauth2User.getId())
                 .email(UUID.randomUUID() + "@socialUser.com")
                 .name(oauth2User.getName())
-                .userStatus(UserStatus.ACTIVE)
+                .userStatus(UserStatus.DEACTIVATED)
                 .userRole(UserRole.GUEST)
                 .build();
     }

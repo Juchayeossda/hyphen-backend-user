@@ -4,6 +4,7 @@ import com.get.hyphenbackenduser.domain.auth.presentation.dto.response.LoginToke
 import com.get.hyphenbackenduser.domain.auth.presentation.dto.response.RefreshTokenResponse;
 import com.get.hyphenbackenduser.global.exception.global.InvalidTokenException;
 import com.get.hyphenbackenduser.global.lib.jwt.properties.JwtProperties;
+import com.get.hyphenbackenduser.global.lib.oauth2.user.CustomOAuth2User;
 import com.get.hyphenbackenduser.global.lib.security.service.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -81,16 +82,32 @@ public class JwtProvider {
         return generateToken(new HashMap<>(), userDetails);
     }
 
+    public String generateToken(CustomOAuth2User oAuth2User) {
+        return generateToken(new HashMap<>(), oAuth2User);
+    }
+
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return buildToken(extraClaims, userDetails, jwtProperties.getExpiration());
+    }
+
+    public String generateToken(Map<String, Object> extraClaims, CustomOAuth2User oAuth2User) {
+        return buildToken(extraClaims, oAuth2User, jwtProperties.getExpiration());
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
         return buildToken(new HashMap<>(), userDetails, jwtProperties.getRefreshExpiration());
     }
 
+    public String generateRefreshToken(CustomOAuth2User userDetails) {
+        return buildToken(new HashMap<>(), userDetails, jwtProperties.getRefreshExpiration());
+    }
+
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
         return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + expiration)).signWith(getSignInKey(), SignatureAlgorithm.HS256).compact();
+    }
+
+    private String buildToken(Map<String, Object> extraClaims, CustomOAuth2User oAuth2User, long expiration) {
+        return Jwts.builder().setClaims(extraClaims).setSubject(oAuth2User.getName()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + expiration)).signWith(getSignInKey(), SignatureAlgorithm.HS256).compact();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

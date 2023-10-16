@@ -1,5 +1,6 @@
 package com.get.hyphenbackenduser.global.lib.webClient.dto.response;
 
+import com.get.hyphenbackenduser.global.lib.webClient.dto.Data;
 import lombok.*;
 
 @Getter
@@ -9,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ImageUploadResponse {
 
-    private String ident;
-    private Long httpStatus;
-    private String description;
+    private int code;
+    private String message;
+    private Data data;
 }
